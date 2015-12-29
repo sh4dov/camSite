@@ -2,6 +2,7 @@
     var util = require('util');
     var events = require('events');
     var ws = require('ws');
+    var dateFormat = require('dateformat');
     var Mpeg1Converter = require('./mpeg1converter');
     var TIMEOUT = 10000;
 
@@ -14,11 +15,15 @@
 
     util.inherits(VideoStream, events.EventEmitter);
 
+    VideoStream.prototype.log = function (logEntry) {
+        console.log(dateFormat(new Date(), 'yyyy-mm-dd hh:MM:ss') + ' ' + this.name + ': ' + logEntry);
+    }
+
     VideoStream.prototype.initialize = function () {
         var self = this;
         this.initialized = false;
         this.converter = new Mpeg1Converter({ url: this.url });
-        console.log(this.name + ': Connecting to stream server: ' + this.url);
+        this.log('Connecting to stream server: ' + this.url);
 
         this.converter.on('metaData', function (data) {
             self.onMetaData(data);
@@ -40,8 +45,9 @@
     }
 
     VideoStream.prototype.close = function () {
-        console.log(this.name + ': Disconnected from stream server: ' + this.url);
+        this.log('Disconnected from stream server: ' + this.url);
         if (this.wsServer) {
+            this.wsServer.clients.forEach(function (client) { client.close(); });
             this.wsServer.close();
         }
         this.converter.close();
@@ -72,7 +78,7 @@
         if (result && result.length > 1) {
             this.width = +result[1];
             this.height = +result[2];
-            global.process.stderr.write(this.name + ': Video resolution: ' + this.width + 'x' + this.height + '\r\n');
+            global.process.stderr.write(dateFormat(new Date(), 'yyyy-mm-dd hh:MM:ss') + ' ' + this.name + ': Video resolution: ' + this.width + 'x' + this.height + '\r\n');
             this.startServer();
             return true;
         }
@@ -84,14 +90,14 @@
         var self = this;
 
         this.wsServer = new ws.Server({ port: this.wsPort });
-        console.log(this.name + ': Started server at port: ' + this.wsPort + ' streaming data from: ' + this.url);
+        this.log('Started server at port: ' + this.wsPort + ' streaming data from: ' + this.url);
 
         this.wsServer.on('connection', function (socket) {
             self.onSocketConnected(socket);
         });
 
         this.wsServer.on('error', function (error) {
-            console.log(self.name + ': ' + error.toString());
+            self.log(error.toString());
             self.reconnect();
         });
 
@@ -121,11 +127,11 @@
         header.writeUInt16BE(this.width, 4);
         header.writeUInt16BE(this.height, 6);
 
-        console.log(this.name + ': new connection (' + this.wsServer.clients.length + ' total)');
+        this.log('New connection (' + this.wsServer.clients.length + ' total)');
         socket.send(header, { binary: true });
 
         socket.on('close', function () {
-            console.log(self.name + ': client disconnected (' + self.wsServer.clients.length + ' total)');
+            self.log('Client disconnected (' + self.wsServer.clients.length + ' total)');
         });
     }
 

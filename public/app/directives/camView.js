@@ -21,7 +21,7 @@ angular.module('app').directive('camView',
                     scope.status = 'Connecting to camera ' + scope.id;
 
                     if (!scope.url) {
-                        scope.status = 'Camera was not found ' + scope.id;
+                        scope.status = 'Camera ' + scope.id + ' was not found ';
                         return;
                     }
 

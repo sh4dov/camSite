@@ -5,6 +5,7 @@ angular.module('app').directive('camHost',
             restrict: 'E',
             link: function (scope) {
                 var returnToOverviewTimeout = 10000;
+                var checkCamerasInterval = 60000;
                 var returnToOverviewHandler;
                 scope.cams = [];
                 scope.isSingleMode = false;
@@ -32,22 +33,32 @@ angular.module('app').directive('camHost',
                 function updateCamUrls() {
                     for (var i in scope.camUrls) {
                         var cam = scope.camUrls[i];
-                        if (scope.cams[i]) {
-                            scope.cams[i].url = cam.url;
-                            scope.cams[i].connect(true);
+                        var camView = scope.cams[i];
+                        if (camView && !camView.connected) {
+                            camView.url = cam.url;
+                            camView.connect(true);
                         }
                     }
                 }
 
-                $http.get('/api/cameras')
-                    .success(function (data) {
-                        scope.camUrls = data;
-                        updateCamUrls();
-                    });
+                function getCameras() {
+                    $http.get('/api/cameras')
+                        .success(function (data) {
+                            scope.camUrls = data;
+                            updateCamUrls();
+                        });
+                }
+                getCameras();
 
                 scope.$watchCollection('cams', function () {
                     updateCamUrls();
                 });
+
+                setInterval(function () {
+                    if (scope.cams.filter(function (cam) { return !cam.connected; }).length > 0) {
+                        getCameras();
+                    }
+                }, checkCamerasInterval);
             }
         }
     }

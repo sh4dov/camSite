@@ -1,42 +1,7 @@
-//var fs = require('fs');
-//var onvif = require('onvif');
-//var Cam = onvif.Cam;
-
-//// credentials is in json format: { "username": "user name", "password": "cam password" }
-//var credentials = JSON.parse(fs.readFileSync('credentials.json', 'utf8'));
-
-//var VideoStream = require('./videoStream');
-//var stream = new VideoStream({ url: 'rtsp://192.168.1.128:554/12', wsPort: 8084, name: 'cam1' });
-
-//onvif.Discovery.probe(function (err, cams) {
-//    console.log("executing..");
-//    if (err) {
-//        console.error('error: ' + JSON.stringify(error));
-//    }
-
-//    cams.forEach(function (cam) {
-//        console.log('found cam: ' + JSON.stringify(cam));
-//        cam.username = credentials.username;
-//        cam.password = credentials.password;
-
-//        new Cam(cam, function (err) {
-//            console.log('error: ' + (err || "-").toString());
-//            this.getStreamUri({ protocol: 'RTSP' }, function (streamErr, stream) {
-//                console.log('stream: ' + JSON.stringify(stream));
-//            });
-
-//            this.getProfiles(function (p, p2) {
-//                console.log('profiles:' + JSON.stringify(p) + ', ' + JSON.stringify(p2));
-//            });
-//        });
-//    });
-
-//    console.log('done');
-//});
-
 (function () {
     var fs = require('fs');
     var portFinder = require('portfinder');
+    var dateFormat = require('dateformat');
     var VideoStream = require('./videoStream');
     var onvif = require('onvif');
     var Cam = onvif.Cam;
@@ -82,7 +47,7 @@
 
                         self.log('Camera ' + cam.hostname + ' has stream at ' + stream.uri);
                         newCams.push({
-                            host: cam.hostname,
+                            hostname: cam.hostname,
                             uri: stream.uri
                         });
 
@@ -96,7 +61,7 @@
     }
 
     CamServer.prototype.log = function (logEntry) {
-        console.log('Cam server: ' + logEntry);
+        console.log(dateFormat(new Date(), 'yyyy-mm-dd hh:MM:ss') + ' Cam server: ' + logEntry);
     }
 
     CamServer.prototype.updateCams = function (newCams) {

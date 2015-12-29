@@ -12,6 +12,7 @@ html, body {
     cursor: pointer;
     border: 1px solid lightgray;
     text-align: center;
+    float: left;
 }
 
 .cam-host {
