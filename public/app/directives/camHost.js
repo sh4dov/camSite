@@ -1,5 +1,5 @@
 angular.module('app').directive('camHost',
-    function () {
+    function ($http) {
         return {
             templateUrl: '/app/directives/templates/camHost.html',
             restrict: 'E',
@@ -27,6 +27,26 @@ angular.module('app').directive('camHost',
                             scope.$apply();
                         }, returnToOverviewTimeout);
                     }
+                });
+
+                function updateCamUrls() {
+                    for (var i in scope.camUrls) {
+                        var cam = scope.camUrls[i];
+                        if (scope.cams[i]) {
+                            scope.cams[i].url = cam.url;
+                            scope.cams[i].connect(true);
+                        }
+                    }
+                }
+
+                $http.get('/api/cameras')
+                    .success(function (data) {
+                        scope.camUrls = data;
+                        updateCamUrls();
+                    });
+
+                scope.$watchCollection('cams', function () {
+                    updateCamUrls();
                 });
             }
         }

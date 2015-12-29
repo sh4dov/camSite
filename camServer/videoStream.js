@@ -25,7 +25,9 @@
         });
 
         this.converter.on('endOfStream', function () {
-            self.reconnect();
+            if (self.getNumberOfClients() > 0) {
+                self.reconnect();
+            }
         });
     }
 
@@ -43,6 +45,7 @@
             this.wsServer.close();
         }
         this.converter.close();
+        this.initialized = false;
     }
 
     VideoStream.prototype.onMetaData = function (data) {
@@ -124,6 +127,13 @@
         socket.on('close', function () {
             console.log(self.name + ': client disconnected (' + self.wsServer.clients.length + ' total)');
         });
+    }
+
+    VideoStream.prototype.getNumberOfClients = function () {
+        if (!this.wsServer) {
+            return 0;
+        }
+        return this.wsServer.clients.length;
     }
 
     module.exports = VideoStream;

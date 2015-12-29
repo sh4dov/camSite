@@ -17,10 +17,15 @@ angular.module('app').directive('camView',
                     scope.$emit('camViewSelecting', scope);
                 };
 
-                var connect = function () {
+                scope.connect = function (skipDigest) {
                     scope.status = 'Connecting to camera ' + scope.id;
 
-                    var client = new WebSocket('ws://192.168.1.7:8084');
+                    if (!scope.url) {
+                        scope.status = 'Camera was not found ' + scope.id;
+                        return;
+                    }
+
+                    var client = new WebSocket(scope.url);
                     client.onerror = function (event) {
                         scope.connected = false;
                         scope.status = 'Cannot connect to camera ' + scope.id;
@@ -30,7 +35,7 @@ angular.module('app').directive('camView',
                         scope.connected = false;
                         scope.status = 'Disconnected from camera ' + scope.id;
                         scope.$apply();
-                        setTimeout(function () { connect(); }, 10000);
+                        setTimeout(function () { scope.connect(); }, 10000);
                     }
 
                     var canvas = $(element).children('canvas')[0];
@@ -40,10 +45,12 @@ angular.module('app').directive('camView',
                         scope.$apply();
                     };
 
-                    scope.$apply();
+                    if (!skipDigest) {
+                        scope.$apply();
+                    }
                 }
 
-                connect();
+                scope.connect(true);
             }
         }
     }
