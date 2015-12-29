@@ -1,0 +1,54 @@
+html, body {
+    height: 100%;
+}
+
+.cam-view {
+    background-color: #999;
+    color: black;
+    width: 49.5%;
+    height: 48.5%;
+    display: inline-block;
+    margin-bottom: 1%;
+    cursor: pointer;
+    border: 1px solid lightgray;
+    text-align: center;
+}
+
+.cam-host {
+    background-color: black;
+    height: 100%;
+    padding: 1%;
+}
+
+    .cam-host:not(.single-mode) .cam-view:nth-child(odd) {
+        margin-right: 1%;
+    }
+
+.single-mode .cam-view {
+    float: right;
+    width: 17%;
+    height: 30%;
+    margin-right: 0;
+    margin-left: 80%;
+}
+
+    .single-mode .cam-view.selected-cam {
+        float: left;
+        width: 80%;
+        height: 90%;
+        position: absolute;
+        margin-left: 0;
+    }
+
+.cam-error {
+    position: absolute;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: x-large;
+}
+
+.cam-view canvas {
+    width: 100%;
+    height: 100%;
+}

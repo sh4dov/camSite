@@ -1,0 +1,6 @@
+<div class="cam-view" ng-class="{'selected-cam': selected}" data-ng-click="toggleSelection()">
+    <canvas data-ng-show="connected">
+        <p>Please use a browser that supports the Canvas Element</p>
+    </canvas>
+    <div class="cam-error" data-ng-if="!connected">{{status}}</div>
+</div>
